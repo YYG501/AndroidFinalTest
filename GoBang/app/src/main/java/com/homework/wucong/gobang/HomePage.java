@@ -13,7 +13,7 @@ public class HomePage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-        
+
     }
 
     /**
@@ -28,5 +28,6 @@ public class HomePage extends AppCompatActivity {
     public void playTwo(View view){
         Intent intentPlay = new Intent(HomePage.this,PlayActivity.class);
         startActivity(intentPlay);
+        //test
     }
 }
