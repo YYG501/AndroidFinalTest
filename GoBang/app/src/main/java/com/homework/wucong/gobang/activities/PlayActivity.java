@@ -1,5 +1,4 @@
 package com.homework.wucong.gobang.activities;
-
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
