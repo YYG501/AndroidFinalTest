@@ -28,6 +28,5 @@ public class HomePage extends AppCompatActivity {
     public void playTwo(View view){
         Intent intentPlay = new Intent(HomePage.this,PlayActivity.class);
         startActivity(intentPlay);
-        //test
     }
 }
