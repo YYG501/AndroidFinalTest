@@ -29,4 +29,9 @@ public class HomePage extends AppCompatActivity {
         Intent intentPlay = new Intent(HomePage.this,PlayActivity.class);
         startActivity(intentPlay);
     }
+
+    public void openRanking(View view){
+        Intent intentPlay = new Intent(HomePage.this,RankingActivity.class);
+        startActivity(intentPlay);
+    }
 }

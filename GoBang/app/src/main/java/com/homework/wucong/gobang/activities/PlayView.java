@@ -21,7 +21,7 @@ public class PlayView extends View {
     private final int BOARD_LINE = 15;//棋盘行数
     private final int WIN_COUNT = 5;
     private float boardLineHeight;//棋盘行高
-    private int boardWidth;//棋盘整体宽度
+    private int boardHeight;//棋盘整体高度
     private Paint paint = new Paint();
 
     private Bitmap whitePiece;
@@ -71,25 +71,25 @@ public class PlayView extends View {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 
-        int heightSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 
-        int width = Math.min(widthSize,heightSize);
+        int height = Math.min(widthSize,heightSize);
 
         if(widthMode == MeasureSpec.UNSPECIFIED) {
-            width = heightSize;
+            height = heightSize;
         }else if(heightMode == MeasureSpec.UNSPECIFIED){
-            width = widthSize;
+            height = widthSize;
         }
 
-        setMeasuredDimension(width,width);
+        setMeasuredDimension(height,height);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        boardWidth = w;
-        boardLineHeight = boardWidth*1.0f / BOARD_LINE;
+        boardHeight = h;
+        boardLineHeight = boardHeight*1.0f / BOARD_LINE;
 
         int pieceWidth = (int) (boardLineHeight * ratioPieceWithLineHeight);
         whitePiece = Bitmap.createScaledBitmap(whitePiece,pieceWidth,pieceWidth,false);
@@ -125,20 +125,20 @@ public class PlayView extends View {
     }
 
     private void drawBoard(Canvas canvas) {
-        int w = boardWidth;
+        int h = boardHeight;
         float lineHeight = boardLineHeight;
 
         //绘制棋盘横线
         for(int i = 0;i < BOARD_LINE;i++){
             int startX = (int) (lineHeight / 2);
-            int endX = (int) (w - lineHeight /2);
+            int endX = (int) (h - lineHeight /2);
             int y = (int) ((0.5 + i) * lineHeight);
             canvas.drawLine(startX,y,endX,y,paint);
         }
         //绘制棋盘纵线
         for(int i = 0;i < BOARD_LINE;i++){
             int startY = (int) (lineHeight / 2);
-            int endY = (int) (w - lineHeight /2);
+            int endY = (int) (h - lineHeight /2);
             int x = (int) ((0.5 + i) * lineHeight);
             canvas.drawLine(x,startY,x,endY,paint);
         }

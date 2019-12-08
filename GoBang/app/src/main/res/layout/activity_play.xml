@@ -2,6 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:screenOrientation="landscape"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/boardbackground"
@@ -9,7 +10,10 @@
 
     <com.homework.wucong.gobang.activities.PlayView
         android:id="@+id/play"
-        android:layout_centerInParent="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:screenOrientation="landscape" />
 </RelativeLayout>
