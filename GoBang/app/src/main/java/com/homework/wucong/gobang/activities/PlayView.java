@@ -6,54 +6,67 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
-
 import com.homework.wucong.gobang.R;
-
 import java.util.ArrayList;
 
-public class PlayView extends View {
 
+public class PlayView extends View {
     private final int BOARD_LINE = 15;//棋盘行数
-    private final int WIN_COUNT = 5;
+    private final int WIN_COUNT = 5;//胜利连子数
     private float boardLineHeight;//棋盘行高
     private int boardHeight;//棋盘整体高度
-    private Paint paint = new Paint();
+    private Paint paint = new Paint();//用于绘制棋盘和棋子
 
-    private Bitmap whitePiece;
-    private Bitmap blackPiece;
-    private float ratioPieceWithLineHeight = 3 * 1.0f / 4;
+    private Bitmap whitePiece;//白棋子
+    private Bitmap blackPiece;//黑棋子
+    private float ratioPieceWithLineHeight = 3 * 1.0f / 4;//棋子与棋盘格子大小的比例 固定为3/4
 
-    private ArrayList<Point> whiteArray = new ArrayList<Point>();
-    private ArrayList<Point> blackArray = new ArrayList<Point>();
+    private ArrayList<Point> whiteArray = new ArrayList<Point>();//存放已经走了的白棋
+    private ArrayList<Point> blackArray = new ArrayList<Point>();//存放已经走了的黑棋
     private boolean isWhiteTurn = true;//当此变量为TRUE时，轮到白棋
 
-    private boolean isGameOver = false;
+    private boolean isGameOver = false;//判断游戏是否结束
+
+    private SoundPool soundPool;///用于存放游戏音效
+    private int peiceSound;//落子音效ID
+
+    Context context;//暂存context
 
     public PlayView(Context context) {
         super(context);
+        this.context = context;
         init();
     }
 
     public PlayView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
         init();
     }
 
     public PlayView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        this.context = context;
         init();
     }
 
     public PlayView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        this.context = context;
         init();
     }
 
+    /**
+     * 初始化变量
+     */
     private void init(){
         setBackgroundColor(0X66000000);
         paint.setColor(0x99ffffff);
@@ -63,28 +76,52 @@ public class PlayView extends View {
 
         whitePiece = BitmapFactory.decodeResource(getResources(), R.drawable.white);
         blackPiece = BitmapFactory.decodeResource(getResources(), R.drawable.black);
+
+        /* 初始化音效 */
+        SoundPool.Builder builder = new SoundPool.Builder();
+        //传入最多播放音频数量,
+        builder.setMaxStreams(3);
+        //AudioAttributes是一个封装音频各种属性的方法
+        AudioAttributes.Builder attrBuilder = new AudioAttributes.Builder();
+        //设置音频流的合适的属性
+        attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
+        //加载一个AudioAttributes
+        builder.setAudioAttributes(attrBuilder.build());
+        soundPool = builder.build();
+        peiceSound = soundPool.load(context, R.raw.piece_sound, 1);
     }
 
+    /**
+     *设置View大小
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 
+        /* 设置棋盘大小 */
         int height = Math.min(widthSize,heightSize);
-
         if(widthMode == MeasureSpec.UNSPECIFIED) {
             height = heightSize;
         }else if(heightMode == MeasureSpec.UNSPECIFIED){
             height = widthSize;
         }
-
         setMeasuredDimension(height,height);
     }
 
+    /**
+     * 在app界面大小变化时回调，设置棋盘大小
+     * @param w
+     * @param h
+     * @param oldw
+     * @param oldh
+     */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -96,6 +133,10 @@ public class PlayView extends View {
         blackPiece = Bitmap.createScaledBitmap(blackPiece,pieceWidth,pieceWidth,false);
     }
 
+    /**
+     * 绘制棋盘与棋子
+     * @param canvas
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -158,6 +199,14 @@ public class PlayView extends View {
             int y = (int) event.getY();
             Point p = getValidPoint(x,y);
 
+            soundPool.play(peiceSound,
+                    0.1f,   //左耳道音量【0~1】
+                    0.5f,   //右耳道音量【0~1】
+                    0,     //播放优先级【0表示最低优先级】
+                    0,     //循环模式【0表示循环一次，-1表示一直循环，其他表示数字+1表示当前数字对应的循环次数】
+                    1     //播放速度【1是正常，范围从0~2】
+            );
+
             if(whiteArray.contains(p) || blackArray.contains(p)){
                 return false;
             }
@@ -175,14 +224,20 @@ public class PlayView extends View {
         return true;
     }
 
+    /**
+     * 从用户触摸点坐标获取对应棋盘落子点
+     * @param x
+     * @param y
+     * @return
+     */
     private Point getValidPoint(int x, int y) {
         return new Point(x / (int)boardLineHeight, y / (int)boardLineHeight);
     }
 
-    private void checkGameOver(int x,int y,boolean isWhite){
+    private void checkGameOver(int x,int y,boolean isWhite){//在落子后调用，检查是否游戏结束
         if(isWhite){
             if(checkFiveInLine(x,y,whiteArray)){
-                Toast.makeText(getContext(), "白棋胜利", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "白棋胜利", Toast.LENGTH_SHORT).show();//气泡提示
             }
         }else{
             if(checkFiveInLine(x,y,blackArray)){
@@ -191,7 +246,14 @@ public class PlayView extends View {
         }
     }
 
-    private boolean checkFiveInLine(int x ,int y,ArrayList<Point> array) {
+    /**
+     * 检查落子点是否使得五子（取决于获胜条件）连珠
+     * @param x
+     * @param y
+     * @param array
+     * @return
+     */
+    private boolean checkFiveInLine(int x ,int y,ArrayList<Point> array) {//
         boolean win = false;
         win = checkHorizontal(x,y,array);
         if(win) return true;
@@ -205,6 +267,13 @@ public class PlayView extends View {
         return false;
     }
 
+    /**
+     * 检查落子点的垂直方向是否五子连珠
+     * @param x
+     * @param y
+     * @param points
+     * @return
+     */
     private boolean checkVertical(int x,int y, ArrayList<Point> points) {
         int count = 1;
         for(int i = 1;i < WIN_COUNT;i++) {
@@ -229,6 +298,13 @@ public class PlayView extends View {
             return false;
     }
 
+    /**
+     * 检查落子点的水平方向是否五子连珠
+     * @param x
+     * @param y
+     * @param points
+     * @return
+     */
     private boolean checkHorizontal(int x,int y, ArrayList<Point> points) {
         int count = 1;
         for(int i = 1;i < WIN_COUNT;i++) {
@@ -253,6 +329,13 @@ public class PlayView extends View {
             return false;
     }
 
+    /**
+     * 检查落子点的从左上到右下方向是否五子连珠
+     * @param x
+     * @param y
+     * @param points
+     * @return
+     */
     private boolean checkLeftDiagonal(int x,int y, ArrayList<Point> points) {
         int count = 1;
         for(int i = 1;i < WIN_COUNT;i++) {
@@ -277,6 +360,13 @@ public class PlayView extends View {
             return false;
     }
 
+    /**
+     * 检查落子点的从右上到左下方向是否五子连珠
+     * @param x
+     * @param y
+     * @param points
+     * @return
+     */
     private boolean checkRightDiagonal(int x,int y, ArrayList<Point> points) {
         int count = 1;
         for(int i = 1;i < WIN_COUNT;i++) {
@@ -301,6 +391,9 @@ public class PlayView extends View {
             return false;
     }
 
+    /**
+     * 再来一局
+     */
     public void restart(){
         whiteArray.clear();
         blackArray.clear();

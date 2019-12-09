@@ -17,20 +17,33 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        Intent intentLogin = new Intent(LoginActivity.this, HomePage.class);
+        SharedPreferences preferences = getSharedPreferences("data", Context.MODE_PRIVATE);
+        String user = preferences.getString("userName","");
+        if(!user.equals("")){
+            startActivity(intentLogin);
+
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     public void loginIn(View view){
         Intent intentLogin = new Intent(LoginActivity.this, HomePage.class);
-//        SharedPreferences preferences = getSharedPreferences("data", Context.MODE_PRIVATE);
-//        String user = preferences.getString("userName","");
+        SharedPreferences preferences = getSharedPreferences("data", Context.MODE_PRIVATE);
+        String user = preferences.getString("userName","");
 
-//        if(user.equals("")){
-//            EditText editText = findViewById(R.id.UserName);
-//            String name = editText.getText().toString();
-//            SharedPreferences.Editor editor = preferences.edit();
-//            editor.putString("userName",name);
-//            editor.commit();
-//        }
+        //判断是否已经存在用户名，是则直接跳转到主页
+        if(user.equals("")){
+            EditText editText = findViewById(R.id.UserName);
+            String name = editText.getText().toString();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("userName",name);
+            editor.commit();
+        }
         startActivity(intentLogin);
     }
 }

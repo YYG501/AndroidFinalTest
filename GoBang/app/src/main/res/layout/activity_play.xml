@@ -8,6 +8,8 @@
     android:background="@drawable/boardbackground"
     tools:context=".activities.PlayActivity">
 
+    <!--自定义棋盘View-->
+
     <com.homework.wucong.gobang.activities.PlayView
         android:id="@+id/play"
         android:layout_width="match_parent"
