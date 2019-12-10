@@ -31,6 +31,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    /**
+     * 设置用户名
+     * @param view
+     */
     public void loginIn(View view){
         Intent intentLogin = new Intent(LoginActivity.this, HomePage.class);
         SharedPreferences preferences = getSharedPreferences("data", Context.MODE_PRIVATE);

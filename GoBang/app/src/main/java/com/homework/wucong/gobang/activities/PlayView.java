@@ -43,6 +43,7 @@ public class PlayView extends View {
 
     Context context;//暂存context
 
+    //胜利消息处理，触发弹窗
     Handler handler = new Handler(){
         public void handleMessage(Message msg){
             super.handleMessage(msg);
@@ -111,6 +112,7 @@ public class PlayView extends View {
         soundPool = builder.build();
         peiceSound = soundPool.load(context, R.raw.piece_sound, 1);
 
+        //初始化弹窗
         dialog = new CustomDialog(context);
         dialog.setYesOnclickListener( new CustomDialog.onYesOnclickListener() {
             @Override

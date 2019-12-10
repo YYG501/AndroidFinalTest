@@ -114,6 +114,10 @@ public class CustomDialog extends Dialog {
         public void onNoClick();
     }
 
+    /**
+     * 设置胜利者
+     * @param isWhiteWin
+     */
     public void setState(boolean isWhiteWin){//1代表白棋胜利，2代表黑棋胜利
         if(isWhiteWin){
             Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player1);
