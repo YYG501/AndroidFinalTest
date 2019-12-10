@@ -9,11 +9,14 @@ import android.graphics.Point;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
+
+import com.homework.wucong.gobang.CustomDialog;
 import com.homework.wucong.gobang.R;
 import java.util.ArrayList;
 
@@ -34,11 +37,29 @@ public class PlayView extends View {
     private boolean isWhiteTurn = true;//当此变量为TRUE时，轮到白棋
 
     private boolean isGameOver = false;//判断游戏是否结束
-
     private SoundPool soundPool;///用于存放游戏音效
     private int peiceSound;//落子音效ID
+    private CustomDialog dialog;
 
     Context context;//暂存context
+
+    Handler handler = new Handler(){
+        public void handleMessage(Message msg){
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1://白棋胜利
+                    dialog.show();//show必须在setState之前，因为dialog在初始化时不会调用onCreate，在show调用时才会调用，进而执行初始化
+                    dialog.setState(true);
+                    break;
+                case 2://黑棋胜利
+                    dialog.show();
+                    dialog.setState(false);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + msg.what);
+            }
+        }
+    };
 
     public PlayView(Context context) {
         super(context);
@@ -68,7 +89,7 @@ public class PlayView extends View {
      * 初始化变量
      */
     private void init(){
-        setBackgroundColor(0X66000000);
+        setBackgroundColor(0X44FFFFFF);
         paint.setColor(0x99ffffff);
         paint.setAntiAlias(true);
         paint.setDither(true);
@@ -89,6 +110,22 @@ public class PlayView extends View {
         builder.setAudioAttributes(attrBuilder.build());
         soundPool = builder.build();
         peiceSound = soundPool.load(context, R.raw.piece_sound, 1);
+
+        dialog = new CustomDialog(context);
+        dialog.setYesOnclickListener( new CustomDialog.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                restart();
+                dialog.dismiss();
+            }
+        });
+        dialog.setNoOnclickListener(new CustomDialog.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                ((PlayActivity)context).finish();
+                dialog.dismiss();
+            }
+        });
     }
 
     /**
@@ -234,14 +271,18 @@ public class PlayView extends View {
         return new Point(x / (int)boardLineHeight, y / (int)boardLineHeight);
     }
 
-    private void checkGameOver(int x,int y,boolean isWhite){//在落子后调用，检查是否游戏结束
-        if(isWhite){
-            if(checkFiveInLine(x,y,whiteArray)){
-                Toast.makeText(getContext(), "白棋胜利", Toast.LENGTH_SHORT).show();//气泡提示
+    private void checkGameOver(int x,int y,boolean isWhiteTurn){//在落子后调用，检查是否游戏结束
+        Message msg =new Message();
+        if(isWhiteTurn){
+            if(checkFiveInLine(x,y,whiteArray)){//白棋胜利
+                addRecord();
+                msg.what = 1;
+                handler.sendMessage(msg);
             }
-        }else{
+        }else{//黑棋胜利
             if(checkFiveInLine(x,y,blackArray)){
-                Toast.makeText(getContext(), "黑棋胜利", Toast.LENGTH_SHORT).show();
+                msg.what = 2;
+                handler.sendMessage(msg);
             }
         }
     }
@@ -253,7 +294,7 @@ public class PlayView extends View {
      * @param array
      * @return
      */
-    private boolean checkFiveInLine(int x ,int y,ArrayList<Point> array) {//
+    private boolean checkFiveInLine(int x ,int y,ArrayList<Point> array) {
         boolean win = false;
         win = checkHorizontal(x,y,array);
         if(win) return true;
@@ -400,5 +441,27 @@ public class PlayView extends View {
         isGameOver = false;
         isWhiteTurn = true;
         invalidate();
+    }
+
+    /**
+     * 悔棋
+     */
+    public void regret(){
+        if(isWhiteTurn){//isWhiteTurn的状态为true，表示前面走的是黑棋，也就是说黑棋要悔棋一步
+            blackArray.remove(blackArray.size() - 1);
+        }else{//表示白棋要悔棋
+            whiteArray.remove(whiteArray.size() - 1);
+        }
+        //上一个走的棋继续下下一步
+        isWhiteTurn = !isWhiteTurn;
+        invalidate();
+
+    }
+
+    /**
+     * 向排行榜中写入记录
+     */
+    private void addRecord(){
+
     }
 }

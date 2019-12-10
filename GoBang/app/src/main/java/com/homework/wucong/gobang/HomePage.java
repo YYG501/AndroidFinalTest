@@ -21,14 +21,13 @@ public class HomePage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+        /* 初始化音效 */
+        mp = MediaPlayer.create(this, R.raw.background_music);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        /* 初始化音效并播放 */
-        mp = MediaPlayer.create(this, R.raw.background_music);
         mp.setLooping(true); // Set looping
         mp.setVolume(100,100);
         mp.start();

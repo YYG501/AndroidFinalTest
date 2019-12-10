@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:screenOrientation="landscape"
     android:layout_width="match_parent"
@@ -9,7 +10,6 @@
     tools:context=".activities.PlayActivity">
 
     <!--自定义棋盘View-->
-
     <com.homework.wucong.gobang.activities.PlayView
         android:id="@+id/play"
         android:layout_width="match_parent"
@@ -18,4 +18,27 @@
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
         android:screenOrientation="landscape" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="60dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="15dp"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/player2"
+        android:background="@drawable/player_bg"/>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="60dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        app:srcCompat="@drawable/player1"
+        android:background="@drawable/player_bg"/>
 </RelativeLayout>
