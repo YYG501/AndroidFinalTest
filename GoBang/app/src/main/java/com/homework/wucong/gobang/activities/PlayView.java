@@ -1,6 +1,10 @@
 package com.homework.wucong.gobang.activities;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -42,6 +46,12 @@ public class PlayView extends View {
     private CustomDialog dialog;
 
     Context context;//暂存context
+
+    //数据库变量 第一次提交之后
+    private SQLiteOpenHelper databaseHelper;
+    SQLiteDatabase db;
+    //第一次提交之后
+    private String userName;
 
     //胜利消息处理，触发弹窗
     Handler handler = new Handler(){
@@ -128,6 +138,14 @@ public class PlayView extends View {
                 dialog.dismiss();
             }
         });
+
+        //初始化数据库
+        databaseHelper = new DatabaseHelper(context);
+        db = databaseHelper.getWritableDatabase();
+
+        //获取用户名
+        SharedPreferences preferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
+        userName = preferences.getString("userName","");
     }
 
     /**
@@ -277,12 +295,13 @@ public class PlayView extends View {
         Message msg =new Message();
         if(isWhiteTurn){
             if(checkFiveInLine(x,y,whiteArray)){//白棋胜利
-                addRecord();
+                addRecord(true);
                 msg.what = 1;
                 handler.sendMessage(msg);
             }
         }else{//黑棋胜利
             if(checkFiveInLine(x,y,blackArray)){
+                addRecord(false);
                 msg.what = 2;
                 handler.sendMessage(msg);
             }
@@ -461,9 +480,15 @@ public class PlayView extends View {
     }
 
     /**
-     * 向排行榜中写入记录
+     * 向排行榜中写入记录 第一次提交之后
      */
-    private void addRecord(){
-
+    private void addRecord(boolean isWhiteWin){
+        if(db != null){
+            int peice_count = isWhiteWin ? whiteArray.size() : blackArray.size();
+            ContentValues cv= new ContentValues();
+            cv.put("name", userName);
+            cv.put("peice_count", peice_count);
+            db.insert(DatabaseHelper.RANKING_TABLE_NAME, null,cv);
+        }
     }
 }

@@ -22,7 +22,6 @@ public class LoginActivity extends AppCompatActivity {
         String user = preferences.getString("userName","");
         if(!user.equals("")){
             startActivity(intentLogin);
-
         }
     }
 
